@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Q3</title>
+    <style>
+        body { font-family: 'Pretendard', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; background-color: #f1f3f5; }
+        .container { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); text-align: center; border: 1px solid #e9ecef; }
+        .instruction { user-select: none; color: #495057; margin-bottom: 25px; font-weight: 500; }
+        
+        /* 복사 대상: 드래그 가능 */
+        .source-symbol { 
+            font-size: 50px; background: #f8f9fa; padding: 10px 40px; 
+            border: 2px solid #ced4da; border-radius: 10px; margin-bottom: 25px; 
+            user-select: text !important; cursor: text; display: inline-block; color: #343a40;
+        }
+
+        /* 입력창: 우클릭 차단 */
+        #editor { 
+            width: 200px; height: 80px; border: 3px solid #dee2e6; padding: 10px; 
+            border-radius: 12px; outline: none; font-size: 50px; text-align: center; 
+            background-color: #fff; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto; transition: border-color 0.2s; overflow: hidden;
+        }
+
+        #status { margin-top: 30px; font-size: 28px; font-weight: bold; color: #228be6; display: none; }
+        .hint { color: #fa5252; font-size: 13px; margin-top: 15px; user-select: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="instruction">
+            <p>아래 기호를 마우스 또는 키보드로 복사</p>
+        </div>
+
+        <div class="source-symbol">◆</div>
+
+        <div id="editor" contenteditable="true" oncontextmenu="return false"></div>
+        
+        <div class="hint">오직 단축키로만 사용가능</div>
+        <div id="status">성공</div>
+    </div>
+
+    <script>
+        const editor = document.getElementById('editor');
+        const status = document.getElementById('status');
+        const targetSymbol = "◆";
+
+        // 1. 키보드 타이핑 차단 (단축키 조합만 허용)
+        editor.addEventListener('keydown', (e) => {
+            const isControl = e.ctrlKey || e.metaKey;
+            const allowedActions = ['v', 'V', 'b', 'B', 'a', 'A', 'c', 'C', 'Backspace'];
+            
+            if (!isControl && !allowedActions.includes(e.key)) {
+                e.preventDefault();
+            }
+        });
+
+        // 2. 검증 로직
+        function checkMission() {
+            const text = editor.innerText.trim();
+            // 실제로 굵게(Bold) 처리가 되었는지 체크
+            const isBold = document.queryCommandState('bold');
+
+            if (text === targetSymbol && isBold) {
+                status.style.display = 'block';
+                editor.style.borderColor = '#228be6';
+            } else {
+                status.style.display = 'none';
+                editor.style.borderColor = '#dee2e6';
+
+                // 다른 텍스트 유입 차단
+                if (text !== "" && text !== targetSymbol) {
+                    editor.innerHTML = "";
+                }
+            }
+        }
+
+        editor.addEventListener('input', checkMission);
+        editor.addEventListener('keyup', checkMission);
+        editor.addEventListener('mouseup', checkMission);
+    </script>
+</body>
+</html>
